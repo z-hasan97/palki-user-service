@@ -6,6 +6,7 @@ import { MessageSignerService } from '@palki/messaging';
 import { UserConsumer } from './consumers/user.consumer';
 import { ChangePasswordConsumer } from './consumers/change-password.consumer';
 import { ClientConsumer } from './consumers/client.consumer';
+import { AgentConsumer } from './consumers/agent.consumer';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -21,6 +22,11 @@ async function bootstrap() {
     'client.create': app.get(ClientConsumer), 'client.findAll': app.get(ClientConsumer),
     'client.findOne': app.get(ClientConsumer), 'client.update': app.get(ClientConsumer),
     'client.delete': app.get(ClientConsumer),
+    'agent.create': app.get(AgentConsumer),
+    'agent.findAll': app.get(AgentConsumer),
+    'agent.findOne': app.get(AgentConsumer),
+    'agent.update': app.get(AgentConsumer),
+    'agent.delete': app.get(AgentConsumer),
   };
 
   async function handleAndReply(topic: string, payload: any, handler: any) {

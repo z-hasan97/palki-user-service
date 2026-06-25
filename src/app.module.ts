@@ -12,12 +12,13 @@ import { UserService } from './services/user.service';
 import { UserConsumer } from './consumers/user.consumer';
 import { ChangePasswordConsumer } from './consumers/change-password.consumer';
 import { ClientConsumer } from './consumers/client.consumer';
+import { AgentConsumer } from './consumers/agent.consumer';
 
 @Module({
   imports: [ConfigModule, LoggerModule, DatabaseModule.forRoot([User, Client, Agent, Package])],
   providers: [
     KafkaConsumerService, KafkaProducerService, MessageSignerService,
-    UserService, UserConsumer, ChangePasswordConsumer, ClientConsumer,
+    UserService, UserConsumer, ChangePasswordConsumer, ClientConsumer, AgentConsumer,
   ],
 })
 export class AppModule {}
