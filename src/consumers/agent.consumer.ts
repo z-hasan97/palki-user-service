@@ -11,9 +11,10 @@ export class AgentConsumer {
     const data = payload.payload || payload;
     if (data.action === 'create') {
       const agent = this.agentRepo.create(data);
-      return this.agentRepo.save(agent);
+      const saved = await this.agentRepo.save(agent) as any;
+      return { 'agent-id': saved.id, 'user-id': saved.userId, name: saved.name, email: saved.email, 'is-active': saved.isActive };
     }
-    if (data.id) return this.agentRepo.findOne({ where: { id: data.id } });
-    return this.agentRepo.find();
+    const agents = await this.agentRepo.find();
+    return agents.map((a: any) => ({ 'agent-id': a.id, 'user-id': a.userId, name: a.name, email: a.email, 'is-active': a.isActive }));
   }
 }
