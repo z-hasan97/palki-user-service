@@ -44,7 +44,7 @@ async function bootstrap() {
   await consumer.onModuleInit();
   for (const [topic, handler] of Object.entries(handlers)) {
     await consumer.subscribe(topic, async (p) => {
-      const msg = JSON.parse(p.message.value?.toString() || '{}');
+      const raw = p.message.value?.toString() || '{}'; console.log('RAW KAFKA:', raw.substring(0,500)); const msg = JSON.parse(raw);
       logger.info('Processing ' + topic, { messageId: msg.messageId, correlationId: msg.correlationId });
       await handleAndReply(topic, msg, handler);
     });
