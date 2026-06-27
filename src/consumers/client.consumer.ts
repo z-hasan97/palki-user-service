@@ -8,11 +8,21 @@ export class ClientConsumer {
   constructor(@InjectRepository(Client) private readonly clientRepo: Repository<Client>) {}
 
   async handle(payload: any) {
-    const clients = await this.clientRepo.find({ relations: { user: true, package: true } });
+    const data = payload.payload || payload;
+    const userId = data.userId || payload.userId || null;
+    const roles = payload.roles || [];
+
+    // Admin sees all, users see only their own
+    const where: any = {};
+    if (!roles.includes('ADMIN') && userId) {
+      where.userId = userId;
+    }
+
+    const clients = await this.clientRepo.find({ where, relations: { user: true, package: true } });
     return clients.map(c => ({
-      id: c.id, userId: c.userId, packageId: c.packageId,
-      startDate: c.startDate, endDate: c.endDate, status: c.status,
-      user: { id: c.user?.id, email: c.user?.email, phone: c.user?.phone, name: c.user?.name, roles: c.user?.roles, state: c.user?.state },
+      'client-id': c.id, 'user-id': c.userId, 'package-id': c.packageId,
+      'start-date': c.startDate, 'end-date': c.endDate, 'client-status': c.status,
+      user: { 'user-id': c.user?.id, email: c.user?.email, phone: c.user?.phone, name: c.user?.name, roles: c.user?.roles, 'account-state': c.user?.state },
       package: c.package,
     }));
   }
