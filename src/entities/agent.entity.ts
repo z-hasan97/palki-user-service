@@ -17,4 +17,7 @@ export class Agent extends BaseEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column('simple-array', { nullable: true, default: '' })
+  clientIds: string[];
 }
