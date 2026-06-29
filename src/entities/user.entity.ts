@@ -9,6 +9,12 @@ export enum UserState {
   DELETED = 'DELETED',
 }
 
+export enum ApprovalStatus {
+  PENDING = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 @Entity('users')
 export class User extends BaseEntity {
   @Column({ unique: true, nullable: true })
@@ -40,4 +46,20 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   lastLoginIp: string;
+
+  // Approval fields for agent-submitted clients
+  @Column({ type: 'enum', enum: ApprovalStatus, nullable: true })
+  approvalStatus: ApprovalStatus;
+
+  @Column({ nullable: true })
+  approvedBy: string;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  approvedAt: Date;
+
+  @Column({ nullable: true })
+  rejectionReason: string;
+
+  @Column({ nullable: true })
+  submittedByAgentId: string;
 }
