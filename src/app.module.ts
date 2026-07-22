@@ -8,17 +8,19 @@ import { User } from './entities/user.entity';
 import { Client } from './entities/client.entity';
 import { Agent } from './entities/agent.entity';
 import { Package } from './entities/package.entity';
+import { Profile } from './entities/profile.entity';
 import { UserService } from './services/user.service';
 import { UserConsumer } from './consumers/user.consumer';
 import { ChangePasswordConsumer } from './consumers/change-password.consumer';
 import { ClientConsumer } from './consumers/client.consumer';
 import { AgentConsumer } from './consumers/agent.consumer';
+import { ProfileConsumer } from './consumers/profile.consumer';
 
 @Module({
-  imports: [ConfigModule, LoggerModule, DatabaseModule.forRoot([User, Client, Agent, Package])],
+  imports: [ConfigModule, LoggerModule, DatabaseModule.forRoot([User, Client, Agent, Package, Profile])],
   providers: [
     KafkaConsumerService, KafkaProducerService, MessageSignerService,
-    UserService, UserConsumer, ChangePasswordConsumer, ClientConsumer, AgentConsumer,
+    UserService, UserConsumer, ChangePasswordConsumer, ClientConsumer, AgentConsumer, ProfileConsumer,
   ],
 })
 export class AppModule {}
