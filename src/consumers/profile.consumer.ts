@@ -14,7 +14,6 @@ export class ProfileConsumer {
     if (topic === 'profile.create') {
       const userId = data.userId;
       if (!userId) return { error: 'userId is required' };
-
       const saved = await this.profileRepo.save({
         userId, firstName: data.firstName, lastName: data.lastName,
         dob: data.dob, age: data.age, gender: data.gender,
@@ -28,6 +27,30 @@ export class ProfileConsumer {
         registerFor: data.registerFor, proPic: data.proPic,
       });
       return { profileId: saved.id, userId: saved.userId };
+    }
+
+    if (topic === 'profile.search') {
+      const profiles = await this.profileRepo.find({
+        relations: { user: true },
+        order: { createdAt: 'DESC' },
+      });
+      return profiles.map(p => ({
+        id: p.userId?.substring(0, 8) || p.id,
+        photo: p.proPic || null,
+        education: p.degreeName || '',
+        profession: p.profession || '',
+        age: p.age || 0,
+        height: p.height || '',
+        gender: p.gender || '',
+        religion: p.religion || '',
+        area: p.presentAddress || '',
+        maritalStatus: p.maritalStatus || '',
+        fatherProfession: p.fatherProfession || '',
+        motherProfession: p.motherProfession || '',
+        presentAddress: p.presentAddress || '',
+        permanentAddress: p.permanentAddress || '',
+        pdfUrl: null,
+      }));
     }
 
     if (topic === 'profile.get') {

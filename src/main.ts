@@ -23,7 +23,7 @@ async function bootstrap() {
     'client.create': app.get(ClientConsumer), 'client.findAll': app.get(ClientConsumer),
     'client.findOne': app.get(ClientConsumer), 'client.update': app.get(ClientConsumer),
     'client.delete': app.get(ClientConsumer),
-    'profile.create': pc, 'profile.get': pc, 'profile.update': pc,
+    'profile.create': pc, 'profile.get': pc, 'profile.update': pc, 'profile.search': pc,
   };
 
   async function handleAndReply(topic: string, payload: any, handler: any) {
