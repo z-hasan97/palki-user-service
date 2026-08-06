@@ -26,6 +26,11 @@ export class UserConsumer {
 
     const profile = await this.profileRepo.findOne({ where: { userId: id } });
 
+    // Helper to remove null values from profile object
+    const cleanProfile = profile ? Object.fromEntries(
+      Object.entries(profile).filter(([_, v]) => v !== null)
+    ) : null;
+
     return {
       'user-id': user.id,
       email: user.email,
@@ -33,8 +38,8 @@ export class UserConsumer {
       name: user.name,
       roles: user.roles,
       'account-state': user.state,
-      publicId: (user as any).publicId,
-      profile: profile || null,
+      publicId: (user as any).publicId || null,
+      profile: cleanProfile,
     };
   }
 }
