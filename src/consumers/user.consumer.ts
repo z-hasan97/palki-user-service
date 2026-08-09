@@ -17,8 +17,8 @@ export class UserConsumer {
 
     if (!id) throw new Error('USER_NOT_FOUND');
 
-    if (data.name || data.email || data.phone) {
-      await this.userService.updateProfile(id, { name: data.name, email: data.email, phone: data.phone } as any);
+    if (data.name || data.email || data.phone || data.proPic) {
+      await this.userService.updateProfile(id, { name: data.name, email: data.email, phone: data.phone, proPic: data.proPic } as any);
     }
 
     const user = await this.userService.findById(id);
