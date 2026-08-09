@@ -17,19 +17,24 @@ export class UserConsumer {
 
     if (!id) throw new Error('USER_NOT_FOUND');
 
-    if (data.name || data.email || data.phone || data.proPic) {
-      await this.userService.updateProfile(id, { name: data.name, email: data.email, phone: data.phone, proPic: data.proPic } as any);
+    // Update user fields
+    if (data.name || data.email || data.phone) {
+      await this.userService.updateProfile(id, { name: data.name, email: data.email, phone: data.phone } as any);
+    }
+
+    // Update profile fields (proPic, etc.)
+    if (data.proPic) {
+      const profile = await this.profileRepo.findOne({ where: { userId: id } });
+      if (profile) {
+        profile.proPic = data.proPic;
+        await this.profileRepo.save(profile);
+      }
     }
 
     const user = await this.userService.findById(id);
     if (!user) throw new Error('USER_NOT_FOUND');
 
     const profile = await this.profileRepo.findOne({ where: { userId: id } });
-
-    // Helper to remove null values from profile object
-    const cleanProfile = profile ? Object.fromEntries(
-      Object.entries(profile).filter(([_, v]) => v !== null)
-    ) : null;
 
     return {
       'user-id': user.id,
@@ -39,7 +44,7 @@ export class UserConsumer {
       roles: user.roles,
       'account-state': user.state,
       publicId: (user as any).publicId || null,
-      profile: cleanProfile,
+      profile: profile ? Object.fromEntries(Object.entries(profile).filter(([_, v]) => v !== null)) : null,
     };
   }
 }
