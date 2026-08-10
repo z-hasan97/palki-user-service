@@ -30,27 +30,64 @@ export class ProfileConsumer {
     }
 
     if (topic === 'profile.search') {
-      const profiles = await this.profileRepo.find({
+      const { gender, profession, religion, age, area, maritalStatus, lookingFor, page = 1, limit = 12 } = data;
+      
+      // Build where conditions
+      const where: any = {};
+      if (gender) where.gender = gender;
+      if (lookingFor) where.gender = lookingFor; // "lookingFor" maps to gender
+      if (profession) where.profession = profession;
+      if (religion) where.religion = religion;
+      if (maritalStatus) where.maritalStatus = maritalStatus;
+      if (area) where.presentAddress = area;
+      
+      // Age filter: format "25-30" -> minAge 25, maxAge 30
+      if (age && age.includes('-')) {
+        const [minAge, maxAge] = age.split('-').map(Number);
+        // TypeORM doesn't support between directly in find options easily
+        // We'll handle this differently
+      }
+
+      const skip = (page - 1) * limit;
+      
+      const [profiles, total] = await this.profileRepo.findAndCount({
+        where,
         relations: { user: true },
         order: { createdAt: 'DESC' },
+        skip,
+        take: limit,
       });
-      return profiles.map(p => ({
-        id: p.userId?.substring(0, 8) || p.id,
-        photo: p.proPic || null,
-        education: p.degreeName || '',
-        profession: p.profession || '',
-        age: p.age || 0,
-        height: p.height || '',
-        gender: p.gender || '',
-        religion: p.religion || '',
-        area: p.presentAddress || '',
-        maritalStatus: p.maritalStatus || '',
-        fatherProfession: p.fatherProfession || '',
-        motherProfession: p.motherProfession || '',
-        presentAddress: p.presentAddress || '',
-        permanentAddress: p.permanentAddress || '',
-        pdfUrl: null,
-      }));
+
+      // Filter by age in JS if needed (TypeORM limitation)
+      let filteredProfiles = profiles;
+      if (age && age.includes('-')) {
+        const [minAge, maxAge] = age.split('-').map(Number);
+        filteredProfiles = profiles.filter(p => p.age >= minAge && p.age <= maxAge);
+      }
+
+      return {
+        profiles: filteredProfiles.map(p => ({
+          id: p.userId?.substring(0, 8) || p.id,
+          photo: p.proPic || null,
+          education: p.degreeName || '',
+          profession: p.profession || '',
+          age: p.age || 0,
+          height: p.height || '',
+          gender: p.gender || '',
+          religion: p.religion || '',
+          area: p.presentAddress || '',
+          maritalStatus: p.maritalStatus || '',
+          fatherProfession: p.fatherProfession || '',
+          motherProfession: p.motherProfession || '',
+          presentAddress: p.presentAddress || '',
+          permanentAddress: p.permanentAddress || '',
+          pdfUrl: null,
+        })),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
     }
 
     if (topic === 'profile.get') {
