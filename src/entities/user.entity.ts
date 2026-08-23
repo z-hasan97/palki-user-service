@@ -65,4 +65,11 @@ export class User extends BaseEntity {
 
   @Column({ nullable: true })
   submittedByAgentId: string;
+
+  // Free profile view tracking
+  @Column({ type: 'int', default: 0 })
+  freeViewsUsed: number;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  freeViewsResetDate: Date;
 }

@@ -13,8 +13,25 @@ export class UserConsumer {
 
   async handle(payload: any) {
     const data = payload.payload || payload;
-    const id = data.userId || data.sub || data.id;
+    const topic = payload.commandType || payload.topic || '';
 
+    // Handle view tracking topics
+    if (topic === 'user.get-free-views') {
+      const id = data.userId || data.sub || data.id;
+      if (!id) return { remaining: 0 };
+      const remaining = await this.userService.getFreeViewsRemaining(id);
+      return { remaining, monthlyLimit: 8 };
+    }
+
+    if (topic === 'user.consume-free-view') {
+      const id = data.userId || data.sub || data.id;
+      if (!id) return { remaining: 0 };
+      const remaining = await this.userService.consumeFreeView(id);
+      return { remaining, monthlyLimit: 8 };
+    }
+
+    // Existing user handling
+    const id = data.userId || data.sub || data.id;
     if (!id) throw new Error('USER_NOT_FOUND');
 
     // Update user fields
@@ -44,6 +61,7 @@ export class UserConsumer {
       roles: user.roles,
       'account-state': user.state,
       publicId: (user as any).publicId || null,
+      freeViewsRemaining: await this.userService.getFreeViewsRemaining(id),
       profile: profile ? Object.fromEntries(Object.entries(profile).filter(([_, v]) => v !== null)) : null,
     };
   }

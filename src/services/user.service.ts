@@ -27,4 +27,42 @@ export class UserService {
   async updatePassword(id: string, passwordHash: string) { await this.userRepo.update(id, { passwordHash }); }
   async updateProfile(id: string, data: Partial<User>) { await this.userRepo.update(id, data); }
   async updateState(id: string, state: UserState) { await this.userRepo.update(id, { state }); }
+
+  async getFreeViewsRemaining(userId: string, monthlyLimit: number = 8): Promise<number> {
+    const user = await this.findById(userId);
+    const now = new Date();
+
+    // Reset if month changed or no reset date set
+    if (!user.freeViewsResetDate || now >= user.freeViewsResetDate) {
+      // Set reset date to 1st of next month
+      const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      user.freeViewsUsed = 0;
+      user.freeViewsResetDate = resetDate;
+      await this.userRepo.save(user);
+    }
+
+    return Math.max(0, monthlyLimit - user.freeViewsUsed);
+  }
+
+  async consumeFreeView(userId: string, monthlyLimit: number = 8): Promise<number> {
+    const user = await this.findById(userId);
+    const now = new Date();
+
+    // Reset if month changed or no reset date set
+    if (!user.freeViewsResetDate || now >= user.freeViewsResetDate) {
+      const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      user.freeViewsUsed = 0;
+      user.freeViewsResetDate = resetDate;
+    }
+
+    // Check if limit reached
+    const remaining = monthlyLimit - user.freeViewsUsed;
+    if (remaining <= 0) return 0;
+
+    // Increment views used
+    user.freeViewsUsed += 1;
+    await this.userRepo.save(user);
+
+    return monthlyLimit - user.freeViewsUsed;
+  }
 }
